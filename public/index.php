@@ -17,4 +17,26 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
+// VERCEL CONFIGURATION: Override storage and bootstrap cache to /tmp (since Vercel is read-only)
+if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL'])) {
+    $app->useStoragePath('/tmp/storage');
+    $app->useBootstrapPath('/tmp/bootstrap');
+    
+    // Auto-create required temporary directories
+    $directories = [
+        '/tmp/storage/app',
+        '/tmp/storage/logs',
+        '/tmp/storage/framework/views',
+        '/tmp/storage/framework/cache/data',
+        '/tmp/storage/framework/sessions',
+        '/tmp/bootstrap/cache',
+    ];
+    
+    foreach ($directories as $directory) {
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+    }
+}
+
 $app->handleRequest(Request::capture());
