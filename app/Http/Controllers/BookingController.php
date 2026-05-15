@@ -54,4 +54,32 @@ class BookingController extends Controller
 
         return view('pages.payment', compact('destination', 'booking'));
     }
+
+    /**
+     * Process refund request.
+     */
+    public function refund(string $bookingId)
+    {
+        $booking = \App\Models\Booking::where('booking_id', $bookingId)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        if ($booking->status !== \App\Models\Booking::STATUS_CONFIRMED) {
+            return back()->with('error', 'Only confirmed bookings can be refunded.');
+        }
+
+        // Check if travel date is in the future
+        if ($booking->travel_date->isPast()) {
+            return back()->with('error', 'Cannot refund past bookings.');
+        }
+
+        $booking->update([
+            'status' => \App\Models\Booking::STATUS_REFUND_PENDING
+        ]);
+
+        // Trigger Notification
+        auth()->user()->notify(new \App\Notifications\BookingStatusChanged($booking));
+
+        return back()->with('success', 'Refund request submitted successfully. We will process it within 24 hours.');
+    }
 }

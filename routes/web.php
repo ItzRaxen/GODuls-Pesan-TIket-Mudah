@@ -54,6 +54,43 @@ Route::get('/destinations/{id}/payment/success', [PaymentController::class, 'suc
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 // ===========================
+// PROTECTED PAGES (Requires Login)
+// ===========================
+
+Route::middleware(['auth'])->group(function () {
+    // User Profile & Booking History
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+    Route::get('/bookings/{id}', [\App\Http\Controllers\ProfileController::class, 'showBooking'])->name('bookings.show');
+    
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\ProfileController::class, 'notifications'])->name('notifications.index');
+    Route::get('/notifications/{id}', [\App\Http\Controllers\ProfileController::class, 'showNotification'])->name('notifications.show');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\ProfileController::class, 'markAllNotificationsRead'])->name('notifications.markAllRead');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\ProfileController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::delete('/notifications/{id}', [\App\Http\Controllers\ProfileController::class, 'deleteNotification'])->name('notifications.delete');
+    
+    // Ticket Refund (Return)
+    Route::post('/bookings/{id}/refund', [\App\Http\Controllers\BookingController::class, 'refund'])->name('bookings.refund');
+});
+
+// ===========================
+// Admin Routes (Protected)
+// ===========================
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'index'])->name('dashboard');
+    
+    // Booking Management
+    Route::get('/bookings', [\App\Http\Controllers\AdminController::class, 'bookings'])->name('bookings');
+    Route::post('/bookings/{id}/status', [\App\Http\Controllers\AdminController::class, 'updateBookingStatus'])->name('bookings.update-status');
+    
+    // Destination Management
+    Route::get('/destinations', [\App\Http\Controllers\AdminController::class, 'destinations'])->name('destinations');
+    Route::get('/destinations/create', [\App\Http\Controllers\AdminController::class, 'createDestination'])->name('destinations.create');
+    Route::post('/destinations', [\App\Http\Controllers\AdminController::class, 'storeDestination'])->name('destinations.store');
+    Route::delete('/destinations/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDestination'])->name('destinations.delete');
+});
+
+// ===========================
 // API ROUTES (for AJAX)
 // ===========================
 

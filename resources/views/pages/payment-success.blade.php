@@ -23,7 +23,7 @@
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">Date</span>
-                <span class="font-semibold text-gray-900">{{ \Carbon\Carbon::parse($booking['date'])->format('d M Y') }}</span>
+                <span class="font-semibold text-gray-900">{{ \Carbon\Carbon::parse($booking['travel_date'])->format('d M Y') }}</span>
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">Guests</span>
@@ -31,7 +31,7 @@
             </div>
             <div class="flex justify-between border-t pt-2 mt-2">
                 <span class="text-gray-500">Total Paid</span>
-                <span class="font-bold text-blue-600">Rp {{ number_format($destination['price'] * $booking['guests'] * 1.1, 0, ',', '.') }}</span>
+                <span class="font-bold text-blue-600">Rp {{ number_format($booking['grand_total'], 0, ',', '.') }}</span>
             </div>
         </div>
         <a href="{{ route('home') }}" class="btn-primary w-full py-4 rounded-xl flex items-center justify-center gap-2">

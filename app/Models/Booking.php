@@ -19,6 +19,7 @@ class Booking extends Model
      */
     protected $fillable = [
         'booking_id',
+        'user_id',
         'destination_id',
         'guest_name',
         'guest_email',
@@ -39,14 +40,25 @@ class Booking extends Model
         'total_price' => 'integer',
         'tax_amount'  => 'integer',
         'grand_total' => 'integer',
+        'user_id'     => 'integer',
     ];
 
     /**
      * Status constants.
      */
-    const STATUS_PENDING   = 'pending';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_PENDING        = 'pending';
+    const STATUS_CONFIRMED      = 'confirmed';
+    const STATUS_CANCELLED      = 'cancelled';
+    const STATUS_REFUND_PENDING = 'refund_pending';
+    const STATUS_REFUNDED       = 'refunded';
+
+    /**
+     * Relationship: Belongs to a user.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Relationship: Belongs to a destination.

@@ -8,81 +8,117 @@
             <span class="text-xl font-bold text-white tracking-tight">GODuls</span>
         </a>
 
-        <!-- Desktop Nav -->
-        <div class="hidden md:flex items-center gap-1">
-            <a href="{{ route('home') }}"
-               class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('home') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
-                Home
-            </a>
-            <a href="{{ route('destinations.index') }}"
-               class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('destinations*') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
-                Destinations
-            </a>
-            <a href="{{ route('home') }}#packages"
-               class="px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                Packages
-            </a>
-            <a href="{{ route('home') }}#about"
-               class="px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                About
-            </a>
-            <a href="{{ route('home') }}#contact"
-               class="px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                Contact
-            </a>
+        <!-- Desktop Nav (Role-Based) -->
+        <div class="hidden md:flex items-center gap-2">
+            @auth
+                @if(auth()->user()->is_admin)
+                    <!-- Administrator Specific Nav -->
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="px-5 py-2.5 rounded-xl text-sm font-black transition-all duration-300 {{ request()->routeIs('admin.dashboard') ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-red-400/70 hover:text-red-400 hover:bg-red-500/10' }}">
+                        Overview
+                    </a>
+                    <a href="{{ route('admin.bookings') }}"
+                       class="px-5 py-2.5 rounded-xl text-sm font-black transition-all duration-300 {{ request()->routeIs('admin.bookings') ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-red-400/70 hover:text-red-400 hover:bg-red-500/10' }}">
+                        Bookings
+                    </a>
+                    <a href="{{ route('admin.destinations') }}"
+                       class="px-5 py-2.5 rounded-xl text-sm font-black transition-all duration-300 {{ request()->routeIs('admin.destinations*') ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'text-red-400/70 hover:text-red-400 hover:bg-red-500/10' }}">
+                        Inventory
+                    </a>
+                    <div class="w-px h-4 bg-white/10 mx-3"></div>
+                @endif
+            @endauth
+
+            <!-- Default / User Nav -->
+            @if(!auth()->check() || !auth()->user()->is_admin)
+                <a href="{{ route('home') }}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('home') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Home
+                </a>
+                <a href="{{ route('destinations.index') }}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('destinations*') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Destinations
+                </a>
+                <a href="{{ route('home') }}#packages"
+                   class="px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                    Packages
+                </a>
+            @endif
         </div>
 
         <!-- CTA Desktop -->
-        <div class="hidden md:flex items-center gap-3">
-            <!-- Search -->
-            <div class="relative" id="search-container">
-                <div id="search-bar"
-                     class="flex items-center bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg px-3 py-2 transition-all duration-300 ease-in-out overflow-hidden w-10 cursor-pointer"
-                     onclick="openSearch()">
-                    <i data-lucide="search" class="w-4 h-4 text-white flex-shrink-0"></i>
-                    <input
-                        id="search-input"
-                        type="text"
-                        placeholder="Search destination..."
-                        class="bg-transparent border-none outline-none text-sm text-white placeholder:text-white/50 transition-all duration-300 ease-in-out w-0 opacity-0 ml-0 p-0"
-                        oninput="handleSearch(this.value)"
-                        onblur="setTimeout(closeSearch, 200)"
-                    />
-                    <button id="search-close" onclick="event.stopPropagation(); closeSearch();" class="ml-2 text-white/50 hover:text-white flex-shrink-0 hidden">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                <!-- Search Dropdown -->
-                <div id="search-dropdown"
-                     class="absolute top-full right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 origin-top-right opacity-0 scale-95 -translate-y-2 pointer-events-none">
-                    <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                        <span class="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
-                            <i data-lucide="map-pin" class="w-3 h-3"></i> Results
-                        </span>
-                        <span class="text-xs text-gray-400" id="search-count">0 found</span>
+        <div class="hidden md:flex items-center gap-6">
+            <!-- Search (Only for Users) -->
+            @if(!auth()->check() || !auth()->user()->is_admin)
+                <div class="relative" id="search-container">
+                    <div id="search-bar"
+                         class="flex items-center bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg px-3 py-2 transition-all duration-300 ease-in-out overflow-hidden w-10 cursor-pointer"
+                         onclick="openSearch()">
+                        <i data-lucide="search" class="w-4 h-4 text-white flex-shrink-0"></i>
+                        <input
+                            id="search-input"
+                            type="text"
+                            placeholder="Search destination..."
+                            class="bg-transparent border-none outline-none text-sm text-white placeholder:text-white/50 transition-all duration-300 ease-in-out w-0 opacity-0 ml-0 p-0"
+                            oninput="handleSearch(this.value)"
+                            onblur="setTimeout(closeSearch, 200)"
+                        />
+                        <button id="search-close" onclick="event.stopPropagation(); closeSearch();" class="ml-2 text-white/50 hover:text-white flex-shrink-0 hidden">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
                     </div>
-                    <div class="max-h-96 overflow-y-auto" id="search-results-container">
-                        <div class="p-6 text-center text-gray-500 text-sm" id="search-empty">
-                            No destinations found.
+
+                    <!-- Search Dropdown -->
+                    <div id="search-dropdown"
+                         class="absolute top-full right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 origin-top-right opacity-0 scale-95 -translate-y-2 pointer-events-none">
+                        <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <span class="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i> Results
+                            </span>
+                            <span class="text-xs text-gray-400" id="search-count">0 found</span>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto" id="search-results-container">
+                            <div class="p-6 text-center text-gray-500 text-sm" id="search-empty">
+                                No destinations found.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             @guest
-            <a href="{{ route('login') }}" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                <i data-lucide="user" class="w-4 h-4"></i>
-                Sign In
-            </a>
+                <a href="{{ route('login') }}" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    Sign In
+                </a>
             @else
-            <form action="{{ route('logout') }}" method="POST" class="inline m-0">
-                @csrf
-                <button type="submit" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    Logout
-                </button>
-            </form>
+                <!-- Notifications -->
+                <div class="relative">
+                    <a href="{{ route('notifications.index') }}" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-all relative">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-slate-900">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- Profile -->
+                <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br {{ auth()->user()->is_admin ? 'from-red-500 to-rose-600' : 'from-blue-500 to-cyan-400' }} flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
+                        {{ substr(auth()->user()->name, 0, 1) }}
+                    </div>
+                    <span class="text-sm font-bold text-white hidden lg:block">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                </a>
+
+                <!-- Logout -->
+                <form action="{{ route('logout') }}" method="POST" class="inline m-0">
+                    @csrf
+                    <button type="submit" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/10 text-red-400 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </form>
             @endguest
             <a href="{{ route('destinations.index') }}" class="btn-primary text-sm py-2 px-5">
                 Book Now
@@ -116,11 +152,40 @@
             </div>
         </div>
 
-        <a href="{{ route('home') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Home</a>
-        <a href="{{ route('destinations.index') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Destinations</a>
-        <a href="{{ route('home') }}#packages" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Packages</a>
-        <a href="{{ route('home') }}#about" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">About</a>
-        <a href="{{ route('home') }}#contact" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Contact</a>
+        @auth
+            @if(auth()->user()->is_admin)
+                <!-- Admin Mobile Links -->
+                <a href="{{ route('admin.dashboard') }}" class="text-red-400 hover:text-red-300 text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-black block flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard Overview
+                </a>
+                <a href="{{ route('admin.bookings') }}" class="text-red-400 hover:text-red-300 text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-black block flex items-center gap-2">
+                    <i data-lucide="ticket" class="w-4 h-4"></i> Manage Bookings
+                </a>
+                <a href="{{ route('admin.destinations') }}" class="text-red-400 hover:text-red-300 text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-black block flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i> Inventory Management
+                </a>
+            @else
+                <a href="{{ route('home') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Home</a>
+                <a href="{{ route('destinations.index') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Destinations</a>
+            @endif
+
+            <div class="h-px bg-white/10 my-2 mx-4"></div>
+            
+            <a href="{{ route('profile') }}" class="text-blue-400 hover:text-blue-300 text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-bold block flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4"></i> My Account
+            </a>
+            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                @csrf
+                <button type="submit" class="w-full text-red-400 hover:text-red-300 text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-bold block flex items-center gap-2 cursor-pointer">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                </button>
+            </form>
+        @else
+            <a href="{{ route('home') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Home</a>
+            <a href="{{ route('destinations.index') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Destinations</a>
+            <a href="{{ route('login') }}" class="text-white/80 hover:text-white text-left px-4 py-2.5 rounded-lg hover:bg-white/10 transition-all text-sm font-medium block">Sign In</a>
+        @endauth
+
         <a href="{{ route('destinations.index') }}" class="btn-primary text-sm mt-2">Book Now</a>
     </div>
 </header>

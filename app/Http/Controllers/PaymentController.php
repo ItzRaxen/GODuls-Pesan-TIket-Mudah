@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Booking;
+use App\Models\Destination;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
@@ -24,22 +27,44 @@ class PaymentController extends Controller
             abort(404, 'Destination not found.');
         }
 
-        $booking = session('booking');
+        $bookingData = session('booking');
 
-        if (!$booking || $booking['destination_id'] !== $destinationId) {
+        if (!$bookingData || $bookingData['destination_id'] !== $destinationId) {
             return redirect()->route('home')
                 ->with('error', 'Booking session expired. Please start again.');
         }
 
-        // Generate a booking confirmation ID
-        $bookingId = strtoupper(substr(md5(uniqid()), 0, 8));
+        // Calculate prices
+        $totalPrice = $destination['price'] * $bookingData['guests'];
+        $taxAmount  = $totalPrice * 0.1;
+        $grandTotal = $totalPrice + $taxAmount;
+
+        // Create booking in database
+        $booking = Booking::create([
+            'booking_id'     => Booking::generateBookingId(),
+            'user_id'        => Auth::id(),
+            'destination_id' => $destinationId,
+            'guest_name'     => Auth::user() ? Auth::user()->name : $request->cardholder_name,
+            'guest_email'    => Auth::user() ? Auth::user()->email : null,
+            'travel_date'    => $bookingData['date'],
+            'guests'         => $bookingData['guests'],
+            'total_price'    => $totalPrice,
+            'tax_amount'     => $taxAmount,
+            'grand_total'    => $grandTotal,
+            'status'         => Booking::STATUS_CONFIRMED,
+        ]);
+
+        // Trigger Notification
+        if (Auth::user()) {
+            Auth::user()->notify(new \App\Notifications\BookingSuccessful($booking));
+        }
 
         // Store success data in session
         session([
             'payment_success' => [
-                'booking_id'     => $bookingId,
+                'booking_id'     => $booking->booking_id,
                 'destination_id' => $destinationId,
-                'booking'        => $booking,
+                'booking'        => $booking->toArray(),
             ],
         ]);
 
