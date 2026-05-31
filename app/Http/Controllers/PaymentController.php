@@ -14,12 +14,13 @@ class PaymentController extends Controller
      */
     public function process(Request $request, string $destinationId)
     {
-        $request->validate([
-            'cardholder_name' => ['required', 'string', 'min:2', 'max:100'],
-            'card_number'     => ['required', 'string'],
-            'expiry'          => ['required', 'string', 'regex:/^\d{2}\/\d{2}$/'],
-            'cvc'             => ['required', 'string', 'digits:3'],
-        ]);
+        // $request->validate([
+        //     'cardholder_name' => ['required', 'string', 'min:2', 'max:100'],
+        //     'card_number'     => ['required', 'string'],
+        //     'expiry'          => ['required', 'string', 'regex:/^\d{2}\/\d{2}$/'],
+        //     'cvc'             => ['required', 'string', 'digits:3'],
+        // ]);
+
 
         $destination = DestinationController::findById($destinationId);
 
@@ -44,7 +45,7 @@ class PaymentController extends Controller
             'booking_id'     => Booking::generateBookingId(),
             'user_id'        => Auth::id(),
             'destination_id' => $destinationId,
-            'guest_name'     => Auth::user() ? Auth::user()->name : $request->cardholder_name,
+            'guest_name'     => Auth::user() ? Auth::user()->name : 'Guest',
             'guest_email'    => Auth::user() ? Auth::user()->email : null,
             'travel_date'    => $bookingData['date'],
             'guests'         => $bookingData['guests'],

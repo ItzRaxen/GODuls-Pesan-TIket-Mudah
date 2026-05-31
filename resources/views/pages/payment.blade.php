@@ -2,6 +2,12 @@
 
 @section('title', 'Payment - GODuls')
 
+@push('scripts')
+<!-- Midtrans Snap (Sandbox) -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@endpush
+
+
 @section('content')
 <main class="min-h-screen pt-32 pb-16 px-6 bg-gray-50">
     <div class="max-w-4xl mx-auto flex flex-col lg:flex-row gap-8 animate-fade-in-up">
@@ -22,77 +28,17 @@
                     @csrf
                     <input type="hidden" name="date" value="{{ $booking['date'] }}" />
                     <input type="hidden" name="guests" value="{{ $booking['guests'] }}" />
+                    <input type="hidden" name="midtrans_result" id="midtrans_result" value="" />
 
-                    <div class="space-y-4">
-                        <!-- Cardholder Name -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Cardholder Name</label>
-                            <input
-                                type="text"
-                                name="cardholder_name"
-                                placeholder="John Doe"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-800"
-                                required
-                            />
-                            @error('cardholder_name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Card Number -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Card Number</label>
-                            <input
-                                type="text"
-                                name="card_number"
-                                placeholder="0000 0000 0000 0000"
-                                maxlength="19"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-800"
-                                oninput="formatCardNumber(this)"
-                                required
-                            />
-                            @error('card_number')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Expiry & CVC -->
-                        <div class="flex gap-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Expiry Date</label>
-                                <input
-                                    type="text"
-                                    name="expiry"
-                                    placeholder="MM/YY"
-                                    maxlength="5"
-                                    class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-800"
-                                    oninput="formatExpiry(this)"
-                                    required
-                                />
-                                @error('expiry')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">CVC</label>
-                                <input
-                                    type="text"
-                                    name="cvc"
-                                    placeholder="123"
-                                    maxlength="3"
-                                    class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-800"
-                                    required
-                                />
-                                @error('cvc')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
+                    <div class="text-center py-8">
+                        <i data-lucide="shield-check" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
+                        <p class="text-gray-600 font-medium">Click the button below to proceed with our secure payment gateway.</p>
                     </div>
 
                     <button
-                        type="submit"
-                        class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+                        type="button"
+                        id="pay-button"
+                        class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
                     >
                         <i data-lucide="lock" class="w-4 h-4"></i>
                         Pay {{ 'Rp ' . number_format($destination['price'] * $booking['guests'] * 1.1, 0, ',', '.') }}
@@ -162,18 +108,24 @@
 
 @push('scripts')
 <script>
-    function formatCardNumber(input) {
-        let val = input.value.replace(/\D/g, '').substring(0, 16);
-        val = val.replace(/(.{4})/g, '$1 ').trim();
-        input.value = val;
-    }
-
-    function formatExpiry(input) {
-        let val = input.value.replace(/\D/g, '').substring(0, 4);
-        if (val.length >= 2) {
-            val = val.substring(0, 2) + '/' + val.substring(2);
-        }
-        input.value = val;
-    }
+    document.getElementById('pay-button').onclick = function(){
+        snap.pay('{{ $snapToken }}', {
+            onSuccess: function(result){
+                document.getElementById('midtrans_result').value = JSON.stringify(result);
+                document.getElementById('payment-form').submit();
+            },
+            onPending: function(result){
+                document.getElementById('midtrans_result').value = JSON.stringify(result);
+                document.getElementById('payment-form').submit();
+            },
+            onError: function(result){
+                alert("Payment failed!");
+                console.log(result);
+            },
+            onClose: function(){
+                alert('You closed the popup without finishing the payment');
+            }
+        });
+    };
 </script>
 @endpush

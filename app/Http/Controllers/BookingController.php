@@ -52,7 +52,30 @@ class BookingController extends Controller
                 ->with('error', 'Please complete your booking details first.');
         }
 
-        return view('pages.payment', compact('destination', 'booking'));
+        // Midtrans configuration
+        \Midtrans\Config::$serverKey = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
+        $totalPrice = $destination['price'] * $booking['guests'];
+        $taxAmount  = $totalPrice * 0.1;
+        $grandTotal = $totalPrice + $taxAmount;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => 'TRX-' . time() . '-' . uniqid(),
+                'gross_amount' => $grandTotal,
+            ],
+            'customer_details' => [
+                'first_name' => auth()->check() ? auth()->user()->name : 'Guest',
+                'email' => auth()->check() ? auth()->user()->email : 'guest@example.com',
+            ],
+        ];
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+        return view('pages.payment', compact('destination', 'booking', 'snapToken'));
     }
 
     /**
