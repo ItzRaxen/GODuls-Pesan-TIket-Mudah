@@ -1,143 +1,194 @@
 # GODuls - Travel E-Commerce Laravel
-    
-## Stack Teknologi
 
-| Layer       | Teknologi                          |
-|-------------|------------------------------------|
-| Framework   | Laravel (PHP 8.2+)                 |
-| View Engine | Blade Templates                    |
-| ORM         | Eloquent                           |
-| CSS         | Tailwind CSS (CDN) + Custom CSS    |
-| Icons       | Lucide Icons + Font Awesome        |
-| Fonts       | Google Fonts (Inter + Poppins)     |
-| Database    | Supabase (PostgreSQL) / MySQL      |
+GODuls adalah platform e-commerce modern berbasis Laravel yang dirancang khusus untuk memudahkan pemesanan tiket wisata dan travel. Dengan antarmuka pengguna yang menarik, responsif, serta terintegrasi dengan gateway pembayaran populer, GODuls menawarkan pengalaman pemesanan liburan yang mulus dari pencarian destinasi hingga pembayaran.
 
 ---
 
-## Struktur Folder Laravel
+## 🚀 Fitur Utama (Product Features)
+
+1. **Sistem Autentikasi Pengguna**
+   - Registrasi dan Login pengguna.
+   - Keamanan dengan proteksi CSRF dan enkripsi password.
+   - Sesi pengguna untuk manajemen akun.
+
+2. **Eksplorasi & Pencarian Destinasi**
+   - Katalog destinasi wisata yang komprehensif.
+   - Fitur pencarian interaktif dan dropdown hasil pencarian.
+   - Filter kategori dan pengurutan harga.
+
+3. **Sistem Pemesanan (Booking System)**
+   - Formulir pemesanan dinamis dengan pemilihan tanggal (date picker).
+   - Penyesuaian jumlah tamu dan perhitungan harga otomatis secara real-time.
+   - Ringkasan pesanan sebelum melanjutkan ke pembayaran.
+
+4. **Integrasi Pembayaran (Payment Gateway)**
+   - Terintegrasi dengan **Midtrans Snap API** untuk proses pembayaran yang aman dan profesional.
+   - Mendukung berbagai metode pembayaran (Kartu Kredit, Bank Transfer/VA, e-Wallet, dll).
+   - Popup pembayaran interaktif tanpa harus berpindah halaman.
+
+5. **Antarmuka Modern & Responsif (UI/UX)**
+   - Desain premium dengan animasi mikro, efek parallax, dan efek transisi.
+   - Desain yang ramah pengguna baik untuk perangkat mobile maupun desktop.
+   - Sistem newsletter untuk berlangganan info wisata terbaru.
+
+---
+
+## 🛠️ Stack Teknologi (Tech Stack)
+
+| Kategori    | Teknologi                          |
+|-------------|------------------------------------|
+| **Backend** | Laravel (PHP 8.2+)                 |
+| **Frontend**| Blade Templates, HTML5             |
+| **Styling** | Tailwind CSS (CDN), Custom CSS     |
+| **Database**| MySQL / PostgreSQL (Supabase)      |
+| **Payment** | Midtrans API (Snap)                |
+| **Icons**   | Lucide Icons, Font Awesome         |
+| **Fonts**   | Google Fonts (Inter, Poppins)      |
+
+---
+
+## 🏗️ Struktur Detail Produk & Arsitektur
+
+Platform GODuls dibangun dengan pola arsitektur MVC (Model-View-Controller) yang kokoh melalui kerangka kerja Laravel. 
+
+- **Model Layer**: Menangani representasi data dan interaksi dengan database (menggunakan Eloquent ORM). Tabel utama meliputi `users`, `destinations`, dan `bookings`.
+- **View Layer**: Dibangun menggunakan Laravel Blade yang dikombinasikan dengan Tailwind CSS untuk menghasilkan UI yang cepat, dinamis, dan terstruktur ke dalam berbagai layout dan komponen.
+- **Controller Layer**: Memproses logika bisnis, validasi request, dan menghubungkan data antara Model dan View.
+- **Service Layer (Eksternal)**: Menggunakan layanan pihak ketiga seperti Midtrans untuk memproses transaksi dengan aman, mengurangi beban pada server utama.
+
+### Struktur Folder Laravel
 
 ```text
 GODuls-Laravel/
 ├── app/
 │   ├── Http/
 │   │   └── Controllers/
-│   │       ├── AuthController.php          # Login & Register
-│   │       ├── HomeController.php          # Halaman beranda
-│   │       ├── DestinationController.php   # Halaman & API destinations
-│   │       ├── BookingController.php       # Form booking
-│   │       ├── PaymentController.php       # Proses pembayaran
-│   │       └── NewsletterController.php    # Langganan newsletter
+│   │       ├── AuthController.php          # Logika Login & Register
+│   │       ├── HomeController.php          # Pengatur Halaman Beranda
+│   │       ├── DestinationController.php   # Manajemen & Tampilan Destinasi
+│   │       ├── BookingController.php       # Logika Pembuatan & Perhitungan Booking
+│   │       ├── PaymentController.php       # Integrasi Midtrans & Callback
+│   │       └── NewsletterController.php    # Modul Langganan Newsletter
 │   └── Models/
-│       ├── User.php                        # Model user
-│       ├── Destination.php                 # Model destinasi
-│       └── Booking.php                     # Model pemesanan
+│       ├── User.php                        # Representasi entitas User
+│       ├── Destination.php                 # Representasi entitas Destinasi Wisata
+│       └── Booking.php                     # Representasi transaksi Pemesanan
+├── config/
+│   └── midtrans.php                        # Konfigurasi kunci Midtrans
 ├── database/
-│   └── migrations/
-│       ├── ..._create_users_table.php
-│       ├── ..._create_destinations_table.php
-│       ├── ..._create_bookings_table.php
-│       └── ..._create_newsletter_subscribers_table.php
+│   └── migrations/                         # Skema database (users, destinations, bookings)
 ├── public/
 │   └── assets/
 │       └── css/
-│           └── app.css                     # Custom CSS
+│           └── app.css                     # Gaya CSS khusus & utilitas UI
 ├── resources/
 │   └── views/
 │       ├── auth/
-│       │   ├── login.blade.php             # Halaman login
-│       │   └── register.blade.php          # Halaman register
+│       │   ├── login.blade.php             # Antarmuka Login
+│       │   └── register.blade.php          # Antarmuka Register
 │       ├── layouts/
-│       │   ├── app.blade.php               # Layout utama
-│       │   ├── header.blade.php            # Header + navigasi + search
-│       │   └── footer.blade.php            # Footer + newsletter
+│       │   ├── app.blade.php               # Template Master (Kerangka Utama)
+│       │   ├── header.blade.php            # Navigasi & Pencarian
+│       │   └── footer.blade.php            # Footer aplikasi
 │       └── pages/
-│           ├── home.blade.php              # Halaman utama
-│           ├── destinations.blade.php      # Semua destinasi
-│           ├── booking.blade.php           # Form booking
-│           └── payment.blade.php           # Form pembayaran
+│           ├── home.blade.php              # Halaman Utama (Hero, Featured, dll)
+│           ├── destinations.blade.php      # Daftar Seluruh Destinasi
+│           ├── booking.blade.php           # Halaman Form Booking Terintegrasi
+│           └── payment.blade.php           # Tampilan Sukses Pembayaran / Invoice
 └── routes/
-    └── web.php                             # Semua route
+    └── web.php                             # Definisi Seluruh Rute Aplikasi
 ```
 
 ---
 
-## Instalasi & Setup
+## ⚙️ Prasyarat & Instalasi (Setup)
 
-### Persyaratan
+### Persyaratan Sistem
 - PHP >= 8.2
 - Composer
-- Node.js (opsional)
+- Node.js & npm (Opsional, untuk kompilasi asset jika dibutuhkan)
+- Database (MySQL atau PostgreSQL)
+- Akun Midtrans (Sandbox/Production untuk Gateway Pembayaran)
 
-### Langkah-langkah
+### Langkah-langkah Instalasi
 
-```bash
-# 1. Clone atau ekstrak project
-cd GODuls-Laravel
+1. **Clone atau Ekstrak Project**
+   ```bash
+   cd GODuls-Pesan-TIket-Mudah
+   ```
 
-# 2. Install PHP dependencies
-composer install
+2. **Install Dependensi PHP**
+   ```bash
+   composer install
+   ```
 
-# 3. Salin file environment
-cp .env.example .env
+3. **Konfigurasi Environment**
+   Salin file environment example:
+   ```bash
+   cp .env.example .env
+   ```
+   Generate application key:
+   ```bash
+   php artisan key:generate
+   ```
 
-# 4. Generate application key
-php artisan key:generate
+4. **Konfigurasi Database & Layanan**
+   Buka file `.env` dan atur koneksi database Anda:
+   ```env
+   DB_CONNECTION=mysql # atau pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=nama_database
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   Tambahkan juga Kredensial Midtrans Anda di bagian bawah file `.env`:
+   ```env
+   MIDTRANS_MERCHANT_ID=your_merchant_id
+   MIDTRANS_CLIENT_KEY=your_client_key
+   MIDTRANS_SERVER_KEY=your_server_key
+   MIDTRANS_IS_PRODUCTION=false
+   ```
 
-# 5. Konfigurasi database di .env
-# Jika menggunakan Supabase Connection Pooler:
-# DB_URL=postgresql://postgres.[project]:[password]@[pooler-url]:5432/postgres
+5. **Jalankan Migrasi Database**
+   Buat tabel ke dalam database:
+   ```bash
+   php artisan migrate
+   ```
 
-# 6. Jalankan migrasi
-php artisan migrate
-
-# 7. Jalankan server development
-php artisan serve
-```
-
-Buka browser dan akses: **http://localhost:8000**
+6. **Jalankan Server Development**
+   ```bash
+   php artisan serve
+   ```
+   Buka browser dan akses proyek pada URL: **http://localhost:8000**
 
 ---
 
-## Routes
+## 🗺️ Daftar Rute Aplikasi (Routes)
 
-| Method | URL                                   | Nama Route             | Deskripsi              |
+| Method | URL                                   | Nama Route             | Fungsi                 |
 |--------|---------------------------------------|------------------------|------------------------|
 | GET    | `/`                                   | `home`                 | Halaman beranda        |
-| GET    | `/login`                              | `login`                | Halaman login          |
-| POST   | `/login`                              | `login.submit`         | Proses login           |
-| GET    | `/register`                           | `register`             | Halaman register       |
-| POST   | `/register`                           | `register.submit`      | Proses register        |
-| POST   | `/logout`                             | `logout`               | Proses logout          |
-| GET    | `/destinations`                       | `destinations.index`   | Semua destinasi        |
-| GET    | `/destinations/{id}/booking`          | `booking.show`         | Form booking           |
-| POST   | `/destinations/{id}/booking`          | `booking.store`        | Simpan booking         |
-| GET    | `/destinations/{id}/payment`          | `payment.show`         | Form pembayaran        |
-| POST   | `/destinations/{id}/payment`          | `payment.process`      | Proses pembayaran      |
-| POST   | `/newsletter/subscribe`               | `newsletter.subscribe` | Langganan newsletter   |
+| GET    | `/login`                              | `login`                | Halaman form login     |
+| POST   | `/login`                              | `login.submit`         | Proses autentikasi     |
+| GET    | `/register`                           | `register`             | Halaman form registrasi|
+| POST   | `/register`                           | `register.submit`      | Proses simpan akun     |
+| POST   | `/logout`                             | `logout`               | Proses keluar akun     |
+| GET    | `/destinations`                       | `destinations.index`   | Katalog destinasi      |
+| GET    | `/destinations/{id}/booking`          | `booking.show`         | Tampilan form booking  |
+| POST   | `/destinations/{id}/booking`          | `booking.store`        | Simpan data & dapatkan Token Midtrans Snap |
+| POST   | `/newsletter/subscribe`               | `newsletter.subscribe` | Langganan email newsletter |
 
 ---
 
-## Fitur UI
+## 🔒 Keamanan (Security)
 
-- **Hero Section**: Background gradient + parallax image + animasi.
-- **Navbar**: Transparan saat di atas, dark saat scroll; mobile responsive.
-- **Search Bar**: Expandable dengan dropdown hasil pencarian.
-- **Destination Cards**: Hover zoom + rating badge + book button.
-- **Category Filters**: Filter aktif + sort dropdown + price range slider.
-- **Booking Form**: Date picker + guest counter + total price dinamis.
-- **Payment Form**: Card number formatter + order summary.
-- **Auth Flow**: Form login/register dengan validasi dan alert messages.
+Aplikasi ini mengimplementasikan best-practice keamanan Laravel:
+- **CSRF Protection**: Melindungi aplikasi dari aksi pengiriman form yang tidak sah (Cross-Site Request Forgery).
+- **Sanitasi Input**: Menggunakan validasi di tingkat Controller untuk semua data masuk pengguna (Input Sanitization & Validation).
+- **Verifikasi Autentikasi**: Sistem middleware melindungi rute yang memerlukan status login (seperti proses pemesanan dan checkout).
+- **Keamanan Pembayaran**: Semua kunci rahasia disimpan di sisi server (`.env`). Proses verifikasi token Midtrans dilakukan di backend dengan *Server Key* yang dirahasiakan, sehingga integritas transaksi terjamin.
 
 ---
 
-## Keamanan
-
-- CSRF Protection pada semua form.
-- Request Validation di setiap Controller.
-- Pengecekan autentikasi (Auth check) sebelum booking.
-- Pengecekan ketersediaan akun saat login.
-- Input sanitization via Laravel Validation.
-
----
-
-**GODuls** © 2026 — All rights reserved.
+**GODuls Travel E-Commerce** © 2026 — *Pesan Tiket Mudah dan Aman*. All rights reserved.

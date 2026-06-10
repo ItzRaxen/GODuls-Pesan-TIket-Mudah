@@ -65,7 +65,7 @@ class BookingController extends Controller
         $params = [
             'transaction_details' => [
                 'order_id' => 'TRX-' . time() . '-' . uniqid(),
-                'gross_amount' => $grandTotal,
+                'gross_amount' => (int) round($grandTotal),
             ],
             'customer_details' => [
                 'first_name' => auth()->check() ? auth()->user()->name : 'Guest',
